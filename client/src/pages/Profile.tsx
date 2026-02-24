@@ -3,7 +3,6 @@ import { useEvents } from "@/hooks/use-events";
 import { format } from "date-fns";
 import { Calendar, MapPin, Loader2, CheckCircle2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +12,6 @@ export default function Profile() {
   const { events, isLoading: eventsLoading, cancelReservation } = useEvents();
   const { toast } = useToast();
 
-  // Add this inside your Profile component, before the return statement
 const [showTelegramWidget, setShowTelegramWidget] = useState(false);
 const telegramContainerRef = useRef<HTMLDivElement>(null);
 
