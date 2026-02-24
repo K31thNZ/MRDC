@@ -77,7 +77,13 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
-
+  
+  async getUserByTelegramId(telegramId: string): Promise<User | undefined> {
+  // Implementation depends on your database (likely using Drizzle)
+  const users = await db.select().from(usersTable).where(eq(usersTable.telegramId, telegramId));
+  return users[0];
+  }
+  
   async createUser(user: InsertUser & { role?: "admin" | "member" }): Promise<User> {
     const [newUser] = await db.insert(users).values(user).returning();
     return newUser;
