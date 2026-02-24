@@ -73,69 +73,130 @@ useEffect(() => {
   if (!user) return null;
 
   const myReservations = events?.filter((e: any) => e.userReservationStatus !== null) || [];
-
-  return (
-    <div className="bg-secondary/10 p-8 text-center">
-  <div className="inline-block p-4 bg-white rounded-full shadow-md mb-4 relative">
-    <span className="text-4xl">👤</span>
-    {user.isTelegramVerified && (
-      <div className="absolute -right-1 -bottom-1 bg-white rounded-full p-1 border border-green-100">
-        <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-50" />
-      </div>
-    )}
-  </div>
-  <h1 className="text-3xl font-bold mb-2">
-    {user.username}
-  </h1>
-  <p className="text-muted-foreground capitalize">{user.role}</p>
-</div>
-
-<div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-t border-border">
-  <div className="p-8 text-center">
-    <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Loyalty Points</h2>
-    <div className="text-5xl font-display font-bold text-primary">
-      {user.dice} <span className="text-3xl text-foreground">🎲</span>
-    </div>
-    <p className="text-sm text-muted-foreground mt-2">Attend events to earn more!</p>
-  </div>
-  
-  {/* Telegram Status Section - Place your verification UI here */}
-  <div className="p-8 text-center flex flex-col items-center justify-center">
-    <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Telegram Status</h2>
-    {user.isTelegramVerified ? (
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2 text-green-600 font-bold">
-          <CheckCircle2 className="w-5 h-5" /> Account Verified
+return (
+  <div className="max-w-4xl mx-auto px-4 py-12">
+    {/* Profile Header Card */}
+    <div className="bg-white rounded-3xl shadow-sm border border-border overflow-hidden mb-8">
+      <div className="bg-secondary/10 p-8 text-center">
+        <div className="inline-block p-4 bg-white rounded-full shadow-md mb-4 relative">
+          <span className="text-4xl">👤</span>
+          {user.isTelegramVerified && (
+            <div className="absolute -right-1 -bottom-1 bg-white rounded-full p-1 border border-green-100">
+              <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-50" />
+            </div>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground">Linked to ID: {user.telegramId}</p>
+        <h1 className="text-3xl font-bold mb-2">
+          {user.username}
+        </h1>
+        <p className="text-muted-foreground capitalize">{user.role}</p>
       </div>
-    ) : (
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center gap-2 text-amber-600 font-bold">
-          <ShieldAlert className="w-5 h-5" /> Not Verified
+
+      {/* Stats and Telegram Status Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-t border-border">
+        <div className="p-8 text-center">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Loyalty Points</h2>
+          <div className="text-5xl font-display font-bold text-primary">
+            {user.dice} <span className="text-3xl text-foreground">🎲</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">Attend events to earn more!</p>
         </div>
         
-        {!showTelegramWidget ? (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => setShowTelegramWidget(true)}
-          >
-            Link Telegram Account
-          </Button>
-        ) : (
-          <div className="flex flex-col items-center gap-2">
-            <div ref={telegramContainerRef} className="mb-2"></div>
+        {/* Telegram Status Section - Your fixed UI */}
+        <div className="p-8 text-center flex flex-col items-center justify-center">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Telegram Status</h2>
+          {user.isTelegramVerified ? (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-green-600 font-bold">
+                <CheckCircle2 className="w-5 h-5" /> Account Verified
+              </div>
+              <p className="text-xs text-muted-foreground">Linked to ID: {user.telegramId}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-2 text-amber-600 font-bold">
+                <ShieldAlert className="w-5 h-5" /> Not Verified
+              </div>
+              
+              {!showTelegramWidget ? (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowTelegramWidget(true)}
+                >
+                  Link Telegram Account
+                </Button>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <div ref={telegramContainerRef} className="mb-2"></div>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setShowTelegramWidget(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {/* Events Attended Section */}
+    <div className="bg-white rounded-2xl p-6 border border-border shadow-sm mb-12 flex items-center justify-between">
+      <div>
+        <h3 className="font-bold">Events Attended</h3>
+        <p className="text-sm text-muted-foreground">Keep playing to level up!</p>
+      </div>
+      <div className="text-4xl font-display font-bold text-secondary">0</div>
+    </div>
+
+    {/* My Reservations Section */}
+    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+      <Calendar className="h-6 w-6 text-primary" /> 
+      My Reservations
+    </h2>
+
+    <div className="space-y-4">
+      {myReservations.length === 0 ? (
+        <div className="text-center py-12 bg-muted/20 rounded-xl border-2 border-dashed border-border">
+          <p className="text-muted-foreground">You haven't reserved any games yet.</p>
+        </div>
+      ) : (
+        myReservations.map((event: any) => (
+          <div key={event.id} className="bg-white p-6 rounded-xl shadow-sm border border-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
+                    event.userReservationStatus === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {event.userReservationStatus}
+                </span>
+                <h3 className="text-lg font-bold">{event.title}</h3>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> {format(new Date(event.date), "PPP p")}
+                </span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" /> {event.location}
+                </span>
+              </div>
+            </div>
+            
             <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => setShowTelegramWidget(false)}
+              variant="outline"
+              size="sm"
+              onClick={() => cancelReservation.mutate(event.id)}
+              disabled={cancelReservation.isPending}
             >
               Cancel
             </Button>
           </div>
-        )}
-      </div>
-    )}
+        ))
+      )}
+    </div>
   </div>
-</div>
+);
