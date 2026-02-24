@@ -7,6 +7,30 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
+// Add this helper function if you haven't already
+import crypto from 'crypto';
+
+function validateTelegramData(telegramData: any, botToken: string): boolean {
+  const data = { ...telegramData };
+  const hash = data.hash;
+  delete data.hash;
+  
+  const keys = Object.keys(data).sort();
+  const dataCheckString = keys.map(key => `${key}=${data[key]}`).join('\n');
+  
+  const secret = Buffer.from(botToken, 'utf-8');
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(dataCheckString);
+  const calculatedHash = hmac.digest('hex');
+  
+  if (calculatedHash !== hash) return false;
+  
+  const authDate = parseInt(data.auth_date);
+  const now = Math.floor(Date.now() / 1000);
+  if (now - authDate > 86400) return false; // 24 hours
+  
+  return true;
+}
 
 const scryptAsync = promisify(scrypt);
 
@@ -100,12 +124,42 @@ export function setupAuth(app: Express) {
     res.json(req.user);
   });
 
-  app.post("/api/user/verify-telegram", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
-    const updated = await storage.updateUser(req.user.id, {
+app.post("/api/user/verify-telegram", async (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const telegramData = req.body;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    
+    if (!botToken) {
+      return res.status(500).json({ error: "Telegram bot not configured" });
+    }
+
+    if (!validateTelegramData(telegramData, botToken)) {
+      return res.status(400).json({ error: "Invalid Telegram data" });
+    }
+
+    const { id: telegramId, username: telegramUsername, first_name, last_name, photo_url } = telegramData;
+    
+    // Check if this Telegram ID is already linked to another user
+    const existingUser = await storage.getUserByTelegramId(telegramId.toString());
+    if (existingUser && existingUser.id !== req.user.id) {
+      return res.status(409).json({ error: "Telegram account already linked to another user" });
+    }
+
+    // Update the current user
+    const updatedUser = await storage.updateUser(req.user.id, {
+      telegramId: telegramId.toString(),
+      telegramUsername,
+      name: [first_name, last_name].filter(Boolean).join(' ') || req.user.username,
+      avatar: photo_url,
       isTelegramVerified: true,
-      telegramId: req.body.telegramId || "demo_123456"
     });
-    res.json(updated);
-  });
-}
+
+    res.json(updatedUser);
+  } catch (err) {
+    next(err);
+  }
+})
