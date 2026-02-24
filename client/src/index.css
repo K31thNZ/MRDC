@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm, playful palette */
+  --background: 40 50% 98%;      /* Warm cream */
+  --foreground: 20 10% 20%;      /* Soft charcoal */
+  
+  --primary: 12 76% 61%;         /* Coral/Orange */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 173 58% 39%;      /* Deep Teal */
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 40 30% 90%;
+  --muted-foreground: 20 5% 45%;
+  
+  --accent: 45 93% 47%;          /* Golden Yellow */
+  --accent-foreground: 20 10% 20%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 20 10% 85%;
+  --input: 20 10% 90%;
+  --ring: 12 76% 61%;
+  
+  --radius: 1rem;
+
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Architects Daughter', cursive;
+}
+
+.dark {
+  --background: 20 10% 10%;
+  --foreground: 40 30% 90%;
+  
+  --primary: 12 76% 61%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 173 50% 45%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 20 10% 20%;
+  --muted-foreground: 20 5% 60%;
+  
+  --accent: 45 93% 47%;
+  --accent-foreground: 20 10% 20%;
+  
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 20 10% 20%;
+  --input: 20 10% 20%;
+  --ring: 12 76% 61%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom utilities */
+.glass-panel {
+  @apply bg-white/70 dark:bg-black/30 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+}
