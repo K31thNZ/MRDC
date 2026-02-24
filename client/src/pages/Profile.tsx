@@ -6,25 +6,61 @@ import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useRef, useState } from "react";
 
 export default function Profile() {
   const { user, isLoading: authLoading } = useAuth();
   const { events, isLoading: eventsLoading, cancelReservation } = useEvents();
   const { toast } = useToast();
 
-  const verifyTelegram = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/user/verify-telegram", { telegramId: "demo_123456" });
-      return res.json();
-    },
-    onSuccess: () => {
+  // Add this inside your Profile component, before the return statement
+const [showTelegramWidget, setShowTelegramWidget] = useState(false);
+const telegramContainerRef = useRef<HTMLDivElement>(null);
+
+  // Add this effect to load the widget when showTelegramWidget is true
+useEffect(() => {
+  if (!showTelegramWidget || !telegramContainerRef.current) return;
+
+  // Define the callback Telegram will call after authentication
+  window.onTelegramAuth = async (telegramUser) => {
+    try {
+      const res = await apiRequest("POST", "/api/user/verify-telegram", telegramUser);
+      const data = await res.json();
+      
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Telegram Verified",
         description: "Your account has been successfully linked to Telegram.",
       });
+      setShowTelegramWidget(false); // Hide widget after success
+    } catch (error) {
+      toast({
+        title: "Verification Failed",
+        description: "Could not link Telegram account. Please try again.",
+        variant: "destructive",
+      });
     }
-  });
+  };
+
+  // Load Telegram widget script
+  const script = document.createElement('script');
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  script.setAttribute('data-telegram-login', process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME!);
+  script.setAttribute('data-size', 'large');
+  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  script.setAttribute('data-request-access', 'write');
+  script.async = true;
+
+  telegramContainerRef.current.appendChild(script);
+
+  // Cleanup
+  return () => {
+    if (telegramContainerRef.current) {
+      telegramContainerRef.current.innerHTML = '';
+    }
+    delete window.onTelegramAuth;
+  };
+}, [showTelegramWidget]);
 
   if (authLoading || eventsLoading) {
     return (
@@ -52,49 +88,34 @@ export default function Profile() {
            </div>
            <h1 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
              {user.username}
-             {user.isTelegramVerified && (
-               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Verified</span>
-             )}
-           </h1>
-           <p className="text-muted-foreground capitalize">{user.role}</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-t border-border">
-           <div className="p-8 text-center">
-              <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Loyalty Points</h2>
-              <div className="text-5xl font-display font-bold text-primary">
-                 {user.dice} <span className="text-3xl text-foreground">🎲</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">Attend events to earn more!</p>
-           </div>
-           
-           <div className="p-8 text-center flex flex-col items-center justify-center">
-              <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-2">Telegram Status</h2>
-              {user.isTelegramVerified ? (
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2 text-green-600 font-bold">
-                    <CheckCircle2 className="w-5 h-5" /> Account Verified
-                  </div>
-                  <p className="text-xs text-muted-foreground">Linked to ID: {user.telegramId}</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-3">
-                  <div className="flex items-center gap-2 text-amber-600 font-bold">
-                    <ShieldAlert className="w-5 h-5" /> Not Verified
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => verifyTelegram.mutate()}
-                    disabled={verifyTelegram.isPending}
-                  >
-                    {verifyTelegram.isPending ? "Verifying..." : "Confirm Telegram"}
-                  </Button>
-                </div>
-              )}
-           </div>
-        </div>
+{!user.isTelegramVerified && (
+  <div className="flex flex-col items-center gap-3">
+    <div className="flex items-center gap-2 text-amber-600 font-bold">
+      <ShieldAlert className="w-5 h-5" /> Not Verified
+    </div>
+    
+    {!showTelegramWidget ? (
+      <Button 
+        size="sm" 
+        variant="outline" 
+        onClick={() => setShowTelegramWidget(true)}
+      >
+        Link Telegram Account
+      </Button>
+    ) : (
+      <div className="flex flex-col items-center gap-2">
+        <div ref={telegramContainerRef} className="mb-2"></div>
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          onClick={() => setShowTelegramWidget(false)}
+        >
+          Cancel
+        </Button>
       </div>
+    )}
+  </div>
+)}
 
       <div className="bg-white rounded-2xl p-6 border border-border shadow-sm mb-12 flex items-center justify-between">
          <div>
