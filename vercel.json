@@ -1,0 +1,7 @@
+{
+  "builds": [
+    { "src": "client/**", "use": "@vercel/static-build" }
+  ],
+  "buildCommand": "cd client && npm run build",
+  "outputDirectory": "client/dist"
+}
