@@ -9,5 +9,5 @@
       }
     }
   ],
-  "outputDirectory": "client/dist/public"
+  "outputDirectory": "dist/public"
 }
