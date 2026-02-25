@@ -162,4 +162,5 @@ app.post("/api/user/verify-telegram", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-})
+}); 
+} 
