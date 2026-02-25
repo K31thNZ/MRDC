@@ -5,9 +5,9 @@
       "use": "@vercel/static-build",
       "config": {
         "buildCommand": "cd client && npm run build",
-        "outputDirectory": "dist"
+        "outputDirectory": "dist/public"
       }
     }
   ],
-  "outputDirectory": "dist"
+  "outputDirectory": "dist/public"
 }
