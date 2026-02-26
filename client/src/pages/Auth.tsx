@@ -53,7 +53,6 @@ export function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
           </div>
           <CardTitle className="text-2xl font-display">Welcome Back</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
