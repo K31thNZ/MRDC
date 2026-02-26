@@ -54,7 +54,6 @@ export function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-            <Dice5 className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl font-display">Welcome Back</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
@@ -64,8 +63,7 @@ export function Login() {
           <div className="mb-6">
             <TelegramLogin onAuth={handleTelegramAuth} />
           </div>
-
-          {/* Divider */}
+          
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -85,7 +83,7 @@ export function Login() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your username" {...field} />
+                      <Input placeholder="@" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
